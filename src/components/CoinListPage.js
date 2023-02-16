@@ -22,7 +22,7 @@ border-collapse: collapse;
 }
 
 thead tr {
-  border-bottom: 1px solid black;
+  border-bottom: ${props => props.theme.borderColor};
 }
 
 .red {

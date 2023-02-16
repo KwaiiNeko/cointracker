@@ -6,11 +6,12 @@ import Chart from "chart.js/auto";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import styled from "styled-components";
 
+
 const Container = styled.div`
   position: relative;
   width: fit-content;
   height: fit-content;
-  display: inline-block;
+  display: inline-block;  
 
   &:hover > .tooltip,
   &:active > .tooltip {
@@ -78,7 +79,7 @@ const MainContainer = styled.div`
 
 const StyledTable = styled.table`
   width: 95%;
-  border: 1px black solid;
+  border: ${props => props.theme.borderColor};
   margin: 20px;
   padding: 10px;
 
@@ -160,9 +161,10 @@ const CoinItemPage = () => {
       d: setInterval30Day,
     },
   ];
-
+ 
+  
   const [dataset, setDataSet] = useState({
-    labels: interval1hour.map((day) =>
+    labels: !interval1hour ? null : interval1hour.map((day) =>
       new Date(day.timestamp).toLocaleString()
     ),
     datasets: [
@@ -171,10 +173,11 @@ const CoinItemPage = () => {
         label: "가격(USD)",
         borderColor: "rgb(54, 162, 235)",
         borderWidth: 2,
-        data: interval1hour.map((day) => day.price),
+        data: !interval1hour ? null :interval1hour.map((day) => day.price),
       },
     ],
   });
+
 
   useEffect(() => {
     const fetchCoins = async (a, b, c, d) => {
@@ -198,7 +201,7 @@ const CoinItemPage = () => {
 
   useEffect(() => {
     setDataSet({
-      labels: interval1hour.map((day) =>
+      labels: !interval1hour ? null : interval1hour.map((day) =>
         new Date(day.timestamp).toLocaleString("ko-KR", {
           year: "numeric",
           month: "2-digit",
@@ -213,7 +216,7 @@ const CoinItemPage = () => {
           label: "가격(USD)",
           borderColor: "rgb(54, 162, 235)",
           borderWidth: 2,
-          data: interval1hour.map((day) => day.price),
+          data: !interval1hour ? null : interval1hour.map((day) => day.price),
         },
       ],
     });
@@ -222,7 +225,7 @@ const CoinItemPage = () => {
   useEffect(() => {
     if (selected === "interval1hour") {
       setDataSet({
-        labels: interval1hour.map((day) =>
+        labels: !interval1hour ? null : interval1hour.map((day) =>
           new Date(day.timestamp).toLocaleString("ko-KR", {
             year: "numeric",
             month: "2-digit",
@@ -237,7 +240,7 @@ const CoinItemPage = () => {
             label: "가격(USD)",
             borderColor: "rgb(54, 162, 235)",
             borderWidth: 2,
-            data: interval1hour.map((day) => day.price),
+            data: !interval1hour ? null : interval1hour.map((day) => day.price),
           },
         ],
       });
@@ -416,7 +419,7 @@ const CoinItemPage = () => {
         </select>
       </div>
 
-      <Line data={dataset} />
+      {!interval1hour && selected==="interval1hour" ? <p>현재 시간별 데이터가 없습니다. 일간 주간 월간 데이터 확인바랍니다.</p> : <Line data={dataset} />}
       <StyledTable>
         <thead>
           <tr>
@@ -436,7 +439,7 @@ const CoinItemPage = () => {
             <th>시총</th>
           </tr>
         </thead>
-        <TableBody />
+        {!interval1hour && selected==="interval1hour" ? null : <TableBody />} 
       </StyledTable>
     </MainContainer>
   );

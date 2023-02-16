@@ -18,12 +18,16 @@ const StyledDiv = styled.div`
   input{
     width: 20%;
     margin: auto;
+    background-color:transparent;
+    border: ${props => props.theme.borderColor};
     @media all and (max-width: 767px) {
       width: 50%;
     }   
   }
 
-
+  input::placeholder {
+  color: ${props => props.theme.textColor};
+}
 `;
 
 const CoinTitle = (props) => {
