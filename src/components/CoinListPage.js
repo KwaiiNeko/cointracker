@@ -3,49 +3,50 @@ import axios from "axios";
 import CoinTitle from "./CoinTitle";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import Carousel from "./Carousel";
 
 const StyledTable = styled.table`
-margin: 0 auto;
-width: 70%;
-border-collapse: collapse;
+  margin: 0 auto;
+  width: 70%;
+  border-collapse: collapse;
 
-@media all and (max-width: 767px) {
-  font-size: 5px;
+  @media all and (max-width: 767px) {
+    font-size: 5px;
 
-  td:nth-child(5) {
-    display: none;
+    td:nth-child(5) {
+      display: none;
+    }
+
+    th:nth-child(5) {
+      display: none;
+    }
   }
 
-  th:nth-child(5) {
-    display: none;
+  thead tr {
+    border-bottom: ${(props) => props.theme.borderColor};
   }
-}
 
-thead tr {
-  border-bottom: ${props => props.theme.borderColor};
-}
+  .red {
+    color: red;
+  }
 
-.red {
-  color: red;
-}
+  .blue {
+    color: blue;
+  }
 
-.blue {
-  color: blue;
-}
+  .percentChange {
+    text-align: right;
+  }
 
-.percentChange {
-  text-align: right;
-}
-
-a {
-  text-decoration: none;
-}
-a:visited {
-  color: blue;
-}
-a:active {
-  color: blue;
-}
+  a {
+    text-decoration: none;
+  }
+  a:visited {
+    color: blue;
+  }
+  a:active {
+    color: blue;
+  }
 `;
 
 const CoinListPage = () => {
@@ -68,6 +69,8 @@ const CoinListPage = () => {
 
   return (
     <>
+      <Carousel></Carousel>
+
       <CoinTitle
         CallApi={fetchCoins}
         setData={setInputValue}
