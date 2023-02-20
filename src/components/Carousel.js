@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -50,6 +50,7 @@ const linkImgs = [
 
 const Carousel = () => {
   const [dragging, setDragging] = useState(false);
+  const sliderRef = useRef(null);
 
   const handleBeforeChange = useCallback(() => {
     setDragging(true);
@@ -60,7 +61,10 @@ const Carousel = () => {
   }, []);
 
   const handleClickImgs = (item) => {
-    if (!dragging) window.open(item, "_blank");
+    if (!dragging) {window.open(item, "_blank");
+    sliderRef.current.slickPlay();
+  }
+    
   };
 
   // 슬라이드 설정
@@ -82,7 +86,7 @@ const Carousel = () => {
 
   return (
     <Container>
-      <StyledCarousel {...settings}>
+      <StyledCarousel ref={sliderRef} {...settings}>
         {linkImgs.map((item) => (
           <CardBox>
             <CardImg
