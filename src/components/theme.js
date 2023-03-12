@@ -1,5 +1,5 @@
 export const darkTheme = {
-    bgColor: 'black',
+    bgColor: '#22222A',
     textColor: 'white',
     borderColor: '1px solid white',
     btnBgColor: 'rgba(42, 42, 42)',
