@@ -130,9 +130,9 @@ const CoinListPage = () => {
                   </Link>
                 </td>
                 <td>{coin.symbol}</td>
-                <td>￦{coin.quotes.KRW.price.toFixed(2)}</td>
-                <td>{coin.quotes.KRW.market_cap.toFixed(0)}</td>
-                <td>{coin.quotes.KRW.volume_24h.toFixed(0)}</td>
+                <td>￦{Number(coin.quotes.KRW.price.toFixed(2)).toLocaleString('ko-KR')}</td>
+                <td>{Number(coin.quotes.KRW.market_cap.toFixed(0)).toLocaleString('ko-KR')}</td>
+                <td>{Number(coin.quotes.KRW.volume_24h.toFixed(0)).toLocaleString('ko-KR')}</td>
                 <td
                   className={`percentChange ${
                     coin.quotes.KRW.percent_change_24h >= 0 ? "red" : "blue"

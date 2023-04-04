@@ -6,12 +6,12 @@ import Chart from "chart.js/auto";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import styled from "styled-components";
 
-
 const Container = styled.div`
   position: relative;
   width: fit-content;
   height: fit-content;
-  display: inline-block;  
+  display: inline-block;
+  vertical-align: middle;
 
   &:hover > .tooltip,
   &:active > .tooltip {
@@ -79,7 +79,7 @@ const MainContainer = styled.div`
 
 const StyledTable = styled.table`
   width: 95%;
-  border: ${props => props.theme.borderColor};
+  border: ${(props) => props.theme.borderColor};
   margin: 20px;
   padding: 10px;
 
@@ -92,7 +92,6 @@ const kmbt = `k = 1,000
 m = 1,000,000
 b = 1,000,000,000
 t = 1,000,000,000,000`;
-
 
 const Tooltip = ({ children, message }) => {
   return (
@@ -161,23 +160,21 @@ const CoinItemPage = () => {
       d: setInterval30Day,
     },
   ];
- 
-  
+
   const [dataset, setDataSet] = useState({
-    labels: !interval1hour ? null : interval1hour.map((day) =>
-      new Date(day.timestamp).toLocaleString()
-    ),
+    labels: !interval1hour
+      ? null
+      : interval1hour.map((day) => new Date(day.timestamp).toLocaleString()),
     datasets: [
       {
         type: "line",
         label: "가격(USD)",
         borderColor: "rgb(54, 162, 235)",
         borderWidth: 2,
-        data: !interval1hour ? null :interval1hour.map((day) => day.price),
+        data: !interval1hour ? null : interval1hour.map((day) => day.price),
       },
     ],
   });
-
 
   useEffect(() => {
     const fetchCoins = async (a, b, c, d) => {
@@ -201,15 +198,17 @@ const CoinItemPage = () => {
 
   useEffect(() => {
     setDataSet({
-      labels: !interval1hour ? null : interval1hour.map((day) =>
-        new Date(day.timestamp).toLocaleString("ko-KR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      ),
+      labels: !interval1hour
+        ? null
+        : interval1hour.map((day) =>
+            new Date(day.timestamp).toLocaleString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          ),
       datasets: [
         {
           type: "line",
@@ -225,15 +224,17 @@ const CoinItemPage = () => {
   useEffect(() => {
     if (selected === "interval1hour") {
       setDataSet({
-        labels: !interval1hour ? null : interval1hour.map((day) =>
-          new Date(day.timestamp).toLocaleString("ko-KR", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        ),
+        labels: !interval1hour
+          ? null
+          : interval1hour.map((day) =>
+              new Date(day.timestamp).toLocaleString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            ),
         datasets: [
           {
             type: "line",
@@ -305,10 +306,10 @@ const CoinItemPage = () => {
   }, [selected]);
 
   /**
- * k,m,b 숫자단위 계산. 소수점 2자리 표시
- * @param {number} num 항목에 대한 고유 식별자
- * @returns {string} 소수점 제거값 + 단위(kmb)
- */
+   * k,m,b 숫자단위 계산. 소수점 2자리 표시
+   * @param {number} num 항목에 대한 고유 식별자
+   * @returns {string} 소수점 제거값 + 단위(kmb)
+   */
   const kmbtCalc = (num) => {
     if (num < 1000000) return `${(num / 1000).toFixed(2)}k`;
     if (num < 1000000000) return `${(num / 1000000).toFixed(2)}m`;
@@ -330,7 +331,7 @@ const CoinItemPage = () => {
                   minute: "2-digit",
                 })}
               </td>
-              <td>${data.price}</td>
+              <td>${data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -349,7 +350,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>{data.price}</td>
+              <td>${data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -368,7 +369,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>{data.price}</td>
+              <td>${data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -387,7 +388,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>{data.price}</td>
+              <td>${data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -419,16 +420,17 @@ const CoinItemPage = () => {
         </select>
       </div>
 
-      {!interval1hour && selected==="interval1hour" ? <p>현재 시간별 데이터가 없습니다. 일간 주간 월간 데이터 확인바랍니다.</p> : <Line data={dataset} />}
+      {!interval1hour && selected === "interval1hour" ? (
+        <p>
+          현재 시간별 데이터가 없습니다. 일간 주간 월간 데이터 확인바랍니다.
+        </p>
+      ) : (
+        <Line data={dataset} />
+      )}
       <StyledTable>
         <thead>
           <tr>
-            <th>
-              날짜
-              <Tooltip message="오전 9시 기준">
-                <FaRegQuestionCircle />
-              </Tooltip>
-            </th>
+            <th>날짜</th>
             <th>가격(USD)</th>
             <th>
               거래량(24h)
@@ -439,7 +441,7 @@ const CoinItemPage = () => {
             <th>시총</th>
           </tr>
         </thead>
-        {!interval1hour && selected==="interval1hour" ? null : <TableBody />} 
+        {!interval1hour && selected === "interval1hour" ? null : <TableBody />}
       </StyledTable>
     </MainContainer>
   );
