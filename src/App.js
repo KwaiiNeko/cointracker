@@ -6,22 +6,26 @@ import CoinListPage from "./components/CoinListPage";
 import Header from "./components/Header";
 import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
+import Footer from "./components/Footer";
 
 const GlobalStyle = createGlobalStyle`
+  *{
+    box-sizing:border-box;
+  }
   body {
-    background-color: ${props => props.theme.bgColor};
-    color: ${props => props.theme.textColor};
+    background-color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
   }
 `;
 
 function App() {
   const [theme, setTheme] = useState(lightTheme);
-  const [mode, setThemeMode] = useState('light');
+  const [mode, setThemeMode] = useState("light");
 
   const switchTheme = () => {
     const nextTheme = theme === lightTheme ? darkTheme : lightTheme;
     setTheme(nextTheme);
-    const themeMode = mode === 'light' ? 'dark' : 'light';
+    const themeMode = mode === "light" ? "dark" : "light";
     setThemeMode(themeMode);
   };
 
@@ -29,13 +33,14 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <GlobalStyle></GlobalStyle>
-        <Header switchTheme={switchTheme} mode={mode}/>
+        <Header switchTheme={switchTheme} mode={mode} />
         <BrowserRouter basename={process.env.PUBLIC_URL}>
           <Routes>
             <Route path="/" element={<CoinListPage />} />
             <Route path="/coin/:id" element={<CoinItemPage />} />
           </Routes>
         </BrowserRouter>
+        <Footer></Footer>
       </ThemeProvider>
     </>
   );

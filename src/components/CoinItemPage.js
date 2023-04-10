@@ -331,7 +331,7 @@ const CoinItemPage = () => {
                   minute: "2-digit",
                 })}
               </td>
-              <td>${data.price.toLocaleString('en-US')}</td>
+              <td>${data.price<=1 ? data.price : data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -350,7 +350,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>${data.price.toLocaleString('en-US')}</td>
+              <td>${data.price<=1 ? data.price : data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -369,7 +369,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>${data.price.toLocaleString('en-US')}</td>
+              <td>${data.price<=1 ? data.price : data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
@@ -388,7 +388,7 @@ const CoinItemPage = () => {
                   day: "2-digit",
                 })}
               </td>
-              <td>${data.price.toLocaleString('en-US')}</td>
+              <td>${data.price<=1 ? data.price : data.price.toLocaleString('en-US')}</td>
               <td>{kmbtCalc(data.volume_24h)}</td>
               <td>{kmbtCalc(data.market_cap)}</td>
             </tr>
