@@ -6,7 +6,7 @@
 - 암호화폐의 현재시세와 차트를 통한 시세변동 확인 
 - 유튜브나 인터넷강의 없이 본인이 직접 제작
 - 사이트와 어울리면서도 최대한 많은 기능들을 적용해 볼 것을 목표로 진행
-- 오픈 Api - 코인파프리카 (https://api.coinpaprika.com/)를 사용하여 제공받은 데이터를 사용
+- 오픈 Api - 코인파프리카(https://api.coinpaprika.com/)를 사용하여 제공받은 데이터를 사용
 - https://github.com/KwaiiNeko/cointracker
 <br>
 
@@ -37,102 +37,109 @@
 ## 2. 주요 기능
 
 ### 2-1. API 호출<br>
-기존의 풀페이지 라이브러리 없이 Vanila JavaScript로 구현하기 위해 scrollTo 함수를 만들었습니다. 마우스 휠 스크롤, 모바일 드래그 한번당 한페이지씩 애니메이션으로 화면이 이동합니다.
+async와 await, axios를 사용하여 오픈 API를 호출합니다. useEffect를 사용하여 마운트될때 API를 호출하며 코인파프리카(https://api.coinpaprika.com/)에서 제공받은 데이터를 화면에 출력합니다. 받아오는 데이터의 양이 너무 많아 slice를 통해 TOP 100개로 제한했습니다.
 
 ```
-const scrollTo = (yPos, duration = 600) => {
-  // Easing function from https://gist.github.com/gre/1650294
-  const easeOutCubic = (t) => --t * t * t + 1;
-  const startY = window.scrollY;
-  const difference = yPos - startY;
-  const startTime = performance.now();
+  const fetchCoins = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.coinpaprika.com/v1/tickers?quotes=KRW"
+      );
 
-  const move = () => {
-    const progress = (performance.now() - startTime) / duration;
-    const amount = easeOutCubic(progress);
-    window.scrollTo({ top: startY + amount * difference });
-    if (progress < 0.99) {
-      window.requestAnimationFrame(move);
-    }
+      setCoins(response.data.slice(0, 100));
+    } catch (e) {}
   };
 
-  move();
+  useEffect(() => {
+    fetchCoins();
+  }, []);
 };
 ```
 
 ### 2-2. 차트를 통한 데이터 시각화<br>
-모바일 브라우저 별 상단의 url바와 하단의 네비게이션바의 차이로 인해 100vh가 제대로 적용되지 않는 문제가 있어 vh를 직접 계산하여 적용시켰습니다.
-또한 화면크기의 변화와 url바, 네이게이션바의 변화에 대응하기 위해 resize 이벤트시에도 vh를 다시 계산하여 적용시키는 방식을 사용했습니다.
+암호화폐에 있어 가장 중요한 것은 주기적으로 변동되는 많은 데이터를 얼마나 시각적으로 제공할 수 있는가 라고 생각합니다. chart.js와 D3 라이브러리 중 어떤 것을 사용할지 고민했으나 커스터마이징이 많이 필요한 경우 D3, 단순히 주어진 데이터를 보여주는 정도에서는 chart.js를 사용한다고 하여 chart.js를 선택했습니다.<br>
+https://www.chartjs.org/docs/latest/charts/line.html 에서 원하는 차트유형을 선택한 후 그에 맞는 데이터와 차트옵션을 지정하여 사용합니다.
+X축은 labels값, Y축은 data값이 됩니다.
 ```
-function setScreenSize() {
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
+<Line data={dataset} />
 
-window.addEventListener("resize", () => {
-  setScreenSize();
-});
+ const [dataset, setDataSet] = useState({
+    labels: !interval1hour
+      ? null
+      : interval1hour.map((day) => new Date(day.timestamp).toLocaleString()),
+    datasets: [
+      {
+        type: "line",
+        label: "가격(USD)",
+        borderColor: "rgb(54, 162, 235)",
+        borderWidth: 2,
+        data: !interval1hour ? null : interval1hour.map((day) => day.price),
+      },
+    ],
+  });
 
-height: 100vh;
-height: calc(var(--vh, 1vh) * 100);
 ```
 
 ### 2-3. 다크/라이트 모드<br>
-당연히 기본적인 기능으로 제공되어 있을것이라고 생각한 모바일에서 스와이프 시 방향 인식에 대한 기능이 없어 당황했습니다.
-모바일 유저가 처음 터치한 위치와 손을 뗀 위치의 좌표를 계산하여 스와이프 방향을 인식합니다.
-매우 빠른속도로 휠 스크롤과 스크린 드래그가 인식되어 문제가 발생하여 쓰로틀링을 적용시켜 이벤트 인식을 제한했습니다.
-
+스마트폰과 같은 디바이스의 사용량이 증가하면서, 눈의 피로를 덜어주고 집중력을 높여준다는 이유로 다크모드가 등장했습니다. 현재는 수많은 웹사이트들이 다크모드를 기본 옵션으로 제공하고 있으며, 이제는 프론트엔드의 필수 항목이라고 생각했습니다. <br>
+theme.js를 통해 다크/라이트 모드의 배경색, 글자색, 테두리색, 버튼배경색 등을 지정하고 ThemeProvider를 통해 프로젝트 전체에 theme값을 전달합니다. GlobalStyle로는 전체의 배경색과 글자색을 지정했습니다.
 ```
-document.addEventListener("touchend", (e) => {
-    endPoint = e.changedTouches[0].pageY; // 터치가 끝나는 위치 저장
-    if (startPoint < endPoint) {
-        // 위로 스와이프 된 경우
-        const clientHeight = window.innerHeight;
-
-        // 쓰로틀링 적용
-        if (!timer) {
-            timer = setTimeout(function () {
-                timer = null;
-
-                if (currentPage == 1) return;
-                else {
-                    currentPage--;
-                    window.scrollBy(0, -clientHeight);
-                    screenLayout(currentPage);
-                }
-            }, 500);
-        }
-    } else if (startPoint > endPoint) {
-        // 아래로 스와이프 된 경우
-        const clientHeight = window.innerHeight;
-
-        // 
-        쓰로틀링 적용
-        if (!timer) {
-            timer = setTimeout(function () {
-                timer = null;
-
-                if (currentPage == 8) return;
-                else {
-                    currentPage++;
-                    window.scrollBy(0, clientHeight);
-                    screenLayout(currentPage);
-                }
-            }, 500);
-        }
-    }
-});
+      <ThemeProvider theme={theme}>
+        <GlobalStyle></GlobalStyle>
+        <Header switchTheme={switchTheme} mode={mode} />
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
+          <Routes>
+            <Route path="/" element={<CoinListPage />} />
+            <Route path="/coin/:id" element={<CoinItemPage />} />
+          </Routes>
+        </BrowserRouter>
+        <Footer></Footer>
+      </ThemeProvider>
+      
+    background-color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
+    
+    const switchTheme = () => {
+      const nextTheme = theme === lightTheme ? darkTheme : lightTheme;
+      setTheme(nextTheme);
+      const themeMode = mode === "light" ? "dark" : "light";
+      setThemeMode(themeMode);
+  };
 ```
 
 ### 2-4. 슬라이드<br>
-풀페이지에서 마우스 휠 클릭시 나오는 기능으로 화면을 빠르게 이동하게 되면 의도한 바와 다르게 화면이 이동되는 문제가 발생하여 기본 마우스 휠 클릭을 제한합니다.
+react-slick 라이브러리를 사용하여 슬라이드를 매우 손쉽게 구현했습니다. 라이브러리에서 지정한 각종 옵션들을 통해 원하는 기능들을 세팅할 수 있습니다. 3개의 이미지를 제공하고, 이미지를 클릭하면 연결되어 있는 링크로 이동합니다. 평소에는 자동으로 슬라이드가 넘어가다가 마우스를 hover하면 정지합니다.
 
 ```
-document.addEventListener("mousedown", (event) => {
-    if (event.button == 1) {
-        event.preventDefault();
-    }
-})
+  // 슬라이드 설정
+  const settings = {
+    dots: false, // 슬라이드 밑에 점 보이지 않게
+    arrows: false,
+    infinite: true, // 무한으로 반복
+    speed: 500,
+    autoplay: true, // 자동재생 o
+    autoplaySpeed: 3000, // 넘어가는 속도
+    slidesToShow: 1, // 1장씩 보이게
+    slidesToScroll: 1, // 1장씩 뒤로 넘어가게
+    centerMode: true,
+    centerPadding: "-1px", // -1px 하면 슬라이드 끝쪽 이미지가 안잘림
+    touchThreshold: 100,
+    beforeChange: handleBeforeChange,
+    afterChange: handleAfterChange,
+  };
+  
+     <StyledCarousel ref={sliderRef} {...settings}>
+        {linkImgs.map((item) => (
+          <CardBox>
+            <CardImg
+              src={item.Img}
+              onClick={() => {
+                handleClickImgs(item.pageLink);
+              }}
+            />
+          </CardBox>
+        ))}
+      </StyledCarousel>
 ```
 
 ### 2-5. 모달창<br>
