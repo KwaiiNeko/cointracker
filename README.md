@@ -7,7 +7,6 @@
 - 유튜브나 인터넷강의 없이 본인이 직접 제작
 - 사이트와 어울리면서도 최대한 많은 기능들을 적용해 볼 것을 목표로 진행
 - 오픈 Api - 코인파프리카(https://api.coinpaprika.com/)를 사용하여 제공받은 데이터를 사용
-- https://github.com/KwaiiNeko/cointracker
 <br>
 
 ### 1-2. 구성원
@@ -108,7 +107,7 @@ theme.js를 통해 다크/라이트 모드의 배경색, 글자색, 테두리색
 ```
 
 ### 2-4. 슬라이드<br>
-react-slick 라이브러리를 사용하여 슬라이드를 매우 손쉽게 구현했습니다. 라이브러리에서 지정한 각종 옵션들을 통해 원하는 기능들을 세팅할 수 있습니다. 3개의 이미지를 제공하고, 이미지를 클릭하면 연결되어 있는 링크로 이동합니다. 평소에는 자동으로 슬라이드가 넘어가다가 마우스를 hover하면 정지합니다.
+react-slick 라이브러리를 사용하여 슬라이드를 구현했습니다. 라이브러리에서 지정한 각종 옵션들을 통해 원하는 기능들을 세팅할 수 있습니다. 3개의 이미지를 제공하고, 이미지를 클릭하면 연결되어 있는 링크로 이동합니다. 평소에는 자동으로 슬라이드가 넘어가다가 마우스를 hover하면 정지합니다.
 
 ```
   // 슬라이드 설정
@@ -143,101 +142,168 @@ react-slick 라이브러리를 사용하여 슬라이드를 매우 손쉽게 구
 ```
 
 ### 2-5. 모달창<br>
-접속한 유저가 PC인지 모바일인지, 모바일이라면 안드로이드인지 아이폰인지에 따라 제공해야 하는 서비스(앱스토어 링크 제공)가 다르므로 접속 디바이스를 확인하는 함수를 사용했습니다.
+공지사항, 광고, 업데이트 안내 등 모달창을 사용하는 웹사이트가 많아 구현해보았습니다. useEffect를 사용하여 마운트될때 쿠키에서 이전에 "오늘 하루 이 창 열지않기" 로 최근 하루동안 모달창을 닫은 적이 있는지 확인하고 없다면 모달창을 보여줍니다. 닫기버튼을 클릭하거나 "오늘 하루 이 창 열지않기" 버튼을 클릭하면 setModalOpen에 false값을 전달하여 모달창을 닫습니다.
 
 ```
-function checkMobile() {
-  const mobileVerification = navigator.userAgent.toLowerCase();
-
-  let mobileType;
-
-  if (mobileVerification.indexOf("android") > -1) {
-    mobileType = "AOS";
-    return mobileType;
-  } else if (
-    mobileVerification.indexOf("iphone") > -1 ||
-    mobileVerification.indexOf("ipad") > -1 ||
-    mobileVerification.indexOf("ipod") > -1
-  ) {
-    mobileType = "IOS";
-    return mobileType;
-  }
-}
+  useEffect(() => {
+    if (getCookie("modalYN") === "N") {
+      setModalOpen(false);
+      document.body.style.overflow = "unset";
+    }
+  }, []);
+  
+  {modalOpen && <Modal setModalOpen={setModalOpen} />}
+  
+    const closeModal = () => {
+    setModalOpen(false);
+    document.body.style.overflow = "unset";
+  };
+  
 ```
 
 ### 2-6. Cookie 데이터 저장<br>
-각 메인페이지의 이미지 이동 애니메이션 구현을 위해 CSS @keyframes을 사용했고, 풀페이지 이동을 위해 window.requestAnimationFrame을 사용했습니다.
+2-5 모달창의 "오늘 하루 이 창 열지않기" 기능을 구현하면서 useCookies 커스텀훅을 직접 제작했습니다. JSDoc을 작성하여 코드를 확인하지 않고도 기능을 파악할 수 있도록 했습니다. 
+쿠키저장, 쿠키조회, 쿠키삭제 기능을 만들었습니다.
 
 ```
-.main .image.active {
-    animation: slide1 1s ease-in-out;
-}
+const useCookies = () => {
+  /**
+   * Cookie의 값을 세팅해주는 함수
+   * @param {string} cookieName : 쿠키의 이름
+   * @param {string} cookieValue : 쿠키의 값
+   * @param {number} expiresHour : 쿠키의 만료일
+   * @return {void}
+   */
+  const setCookie = (cookieName, cookieValue, expiresHour) => {
+    const expired = new Date();
+    expired.setTime(expired.getTime() + expiresHour * 24 * 60 * 60 * 1000);
+    document.cookie = `${cookieName}=${cookieValue}; path=/; Expires=${expired}`;
+  };
 
-@keyframes slide1 {
-    from {
-        left: 40%;
-        bottom: 400px;
-    }
+  /**
+   * Cookie의 값을 반환해주는 함수
+   * @param cookieName
+   * @returns {string} cookie value
+   */
+  const getCookie = (cookieName) => {
+    let result = "";
+    // 1. 모든 쿠키를 가져와서 분리 함
+    document.cookie.split(";").map((item) => {
+      // 2. 분리한 값의 앞뒤 공백 제거
+      const cookieItem = item.trim();
+      // 3. 키 값과 매칭이 되는 값을 반환
+      if (item.includes(cookieName)) {
+        result = cookieItem.split("=")[1];
+      }
+    });
+    return result; // 존재하면 값을 반환, 미 존재하면 빈값 반환
+  };
 
-    to {
-        left: 50%;
-        bottom: 0;
-    }
-}
+  /**
+   * Cookie의 값을 삭제 해주는 함수
+   * @param {string} cookieName : 쿠키의 이름
+   * @return {void}
+   */
+  const deleteCookie = (cookieName) => {
+    document.cookie = `${cookieName}=0; max-age=0`;
+  };
+
+  return [setCookie,getCookie,deleteCookie];
+};
+
+export default useCookies;
+
+
+  <ClosedButton
+    onClick={() => {
+    setCookie("modalYN", "N", 1);
+    closeModal();
+    }}>
+      오늘 하루 이 창 열지않기
+  </ClosedButton>
+
 ```
 
-## 3. Review
+## 3. 핵심 트러블슈팅
 
-### 3-1. 풀페이지<br>
-프로젝트 시작 전, 인터넷에 이번 프로젝트의 가장 핵심 기능인 풀페이지에 관해 검색해본 적이 있었습니다. 그리고 단 하나도 빠짐없이 모든 글들이 **"풀페이지 구현 도중 실패했습니다. Fullpage.js 라이브러리 사용합니다."** 라는 글 뿐이었습니다.
+### 3-1. 리액트<br>
 
-**그래서 이번 프로젝트를 시작하면서 차라리 실패하더라도 왜 사람들이 라이브러리를 반드시 사용하는지, 어떠한 점에서 문제가 발생하는지, 그리고 그 문제를 해결하려고 노력하는 과정에서의 실력 향상과 적절한 라이브러리의 사용 필요성에 대해 직접 경험해보고자 진행했습니다.**<br>
-그 결과 아래와 같은 문제점을 겪었습니다.
+SPA, JSX, 렌더링, 컴포넌트, Virtual DOM, State, Props, 각종 React Hook 등 리액트를 처음 도입하면서 기존의 프론트엔드 개발과 다른 개념이 많아 고생했습니다. 
+특히 개발 초반에는 변수와 state의 차이점과 그로인해 리렌더링 되는 개념이 자바스크립트와 달라 매우 헷갈렸습니다.
+사실 이번 프로젝트를 진행하면서 위의 개념들을 전부 마스터 했다고는 할 수 없지만 책, 인터넷 강의로 개념만 공부했을 때 보다는 이해도가 확실히 높아졌습니다.
+프로젝트 진행을 목표로 학습하다보니 개념적인 부분보다는 사용방법을 우선시하였기 때문에 개념적인 부분에서의 학습이 좀 더 필요하다고 느꼈습니다.
+그 외에도 이번에 적용해보지 못한 React-Query와 상태관리 라이브러리 Recoil Redux MobX 도 이후에 적용시켜보고 싶습니다.
 
->문제점 1. 브라우저 별 반응이 다름.<br>
->처음에는 단순히 scrollBy에 behavior : 'smooth'를 사용하여 풀페이지 애니메이션을 구현했습니다.
->```          
->window.scrollBy({
->top: clientHeight,
->left: 0,
->behavior : 'smooth',
->});
->```
->하지만 동일한 코드임에도 불구하고 네이버 웨일브라우저에서는 스크롤 시 화면이동 속도가 유독 빨랐고, 모바일 삼성 인터넷 브라우저에서는 스크롤 시 정상적으로 작동하다가 중간에 갑자기 화면이 튀어버리는 버그가 발생했습니다. <br>
->그 후 2-1로 구현하여 네이버 웨일에서의 문제점은 해결했으나, 끝까지 모바일 삼성 인터넷 브라우저에서는 버그가 발생했습니다.
+### 3-2. 슬라이드 클릭시 autostop<br>
+슬라이드의 이미지를 클릭하면 새 탭(페이지)이 열리면서 autoplay: true, // 자동재생 o 로 설정해놓았던 슬라이드의 자동재생이 멈추는 버그가 존재했습니다.
+useRef hook을 사용하여 이미지를 클릭하여 새 탭이 열릴 때 자동재생을 다시 설정시켜 문제를 해결했습니다.
 
->문제점 2. 모바일에서의 작동 오류발생<br>
->100% 정석적인 행동으로 화면을 사용하면 작동에는 문제가 없습니다.
->하지만 모바일에서 스크롤을 매우 빠른속도로 연타한다거나, 새로고침을 미친듯이 한다거나, 여러 손가락으로 동시에 화면을 터치하는 등의 예외적인 상황에서는 의도하지 않은 여러가지 문제점>들이 발생했습니다.
+```
+      <StyledCarousel ref={sliderRef} {...settings}>
+        {linkImgs.map((item) => (
+          <CardBox>
+            <CardImg
+              src={item.Img}
+              onClick={() => {
+                handleClickImgs(item.pageLink);
+              }}
+            />
+          </CardBox>
+        ))}
+      </StyledCarousel>
+    
+    const sliderRef = useRef(null);
+    
+    const handleClickImgs = (item) => {
+      if (!dragging) {window.open(item, "_blank");
+      sliderRef.current.slickPlay();
+  }
+```
 
->문제점 3. 모바일 브라우저 별 url Bar, nav Bar 크기로 인한 100vh 오류<br>
->풀페이지를 위해 각 페이지의 height를 100vh로 적용하여 프로젝트를 진행했으나 카카오톡 인앱브라우저, 삼성 인터넷 브라우저 등에서 100vh가 정상적으로 적용되지 않아 화면이 이상하게 잘>리는 문제가 발생했습니다.
->그 후 2-2로 구현하여 문제점을 해결했습니다.
+## 4. 그 외 트러블슈팅
 
+### 4-1. 숫자 콤마 표기<br>
+가격, 총 시가, 거래량 등 단위가 큰 숫자가 많아 가시성이 좋지 않다는 피드백을 반영하여 숫자에 콤마를 표기하거나 kilo(천,k), million(백만,m), billion(10억,b), trillion(1조,t) 로 변환하여 표기했습니다.
+```
+<td>￦{Number(coin.quotes.KRW.price.toFixed(2)).toLocaleString('ko-KR')}</td>
 
-### 3-2. 크로스 브라우징<br>
-위의 문제점과 연결된다고 볼 수 있을 것 같습니다.
-PC만 하더라도 크롬, 웨일, 파이어폭스, 오페라 등이 있을 뿐만 아니라 모바일로 영역을 넓힌다면 더욱 답이 없어집니다. 안드로이드 크롬, 웨일, 엣지, 파이어폭스, 삼성인터넷브라우저와 애플의 사파리, 카카오톡의 인앱브라우저 등이 있습니다.
+  /**
+   * k,m,b 숫자단위 계산. 소수점 2자리 표시
+   * @param {number} num 항목에 대한 고유 식별자
+   * @returns {string} 소수점 제거값 + 단위(kmb)
+   */
+  const kmbtCalc = (num) => {
+    if (num < 1000000) return `${(num / 1000).toFixed(2)}k`;
+    if (num < 1000000000) return `${(num / 1000000).toFixed(2)}m`;
+    if (num < 1000000000000) return `${(num / 1000000000).toFixed(2)}b`;
+  };
+```
 
-프로젝트 시작 전만 하더라도 만악의 근원 인터넷 익스플로러가 없어졌기 때문에 이제는 큰 문제가 되지 않을것이라고 생각하고 진행했습니다.
-아주 오래된 코드나 너무 최신의 코드만 사용하지 않으면 문제가 되지 않을것이라고 생각했고, 반응형으로 제작할 것을 생각해서 크기만 잘 조절해주면 문제가 없을것이라고 생각했습니다.
+### 4-2. 모바일에서 table 정보 가시성 문제<br>
+화면이 작은 모바일에서 많은 데이터 정보를 전달하다보니 가시성이 좋지 않다는 피드백을 반영하여 모바일에서는 table 정보 중 몇가지 데이터를 숨기고 주요 데이터만 출력했습니다.
+```
+  @media all and (max-width: 767px) {
+    font-size: 13px;
 
-하지만 브라우저별 url Bar, nav Bar의 크기와 존재여부가 다르고, 같은 코드도 실행에 문제가 발생하는 브라우저가 생기고, 각 브라우저별로 개인설정이 따로 들어가는 등 생각보다 문제가 많았습니다.
+    td:nth-child(5) {
+      display: none;
+    }
 
-### 3-3. 반응형 웹<br>
-처음 프로젝트를 시작할 때 PC버전을 우선하여 만들고, PC버전이 완성되면 그때 미디어 쿼리를 이용하여 사이즈와 존재여부만 건들면 된다고 생각했습니다.
+    th:nth-child(5) {
+      display: none;
+    }
 
-그래서 웹 제작 당시 px단위를 남발하여 우선 웹부분을 완성하는데 집중하였고,
-웹 완성 이후에 모바일을 끼워맞추기 시작하면서 잘못되었음을 인식했습니다.
+    td:nth-child(6) {
+      display: none;
+    }
 
-앞으로는 PC버전을 만들때 모바일을 미리 생각하여 적절한 %, vw, vh, em, rem등 적절한 단위를 사용해야 한다고 느꼈습니다.
+    th:nth-child(6) {
+      display: none;
+    }
+  }
+```
 
-### 3-4. 마우스 스크롤 이벤트 쓰로틀링<br>
-이번에 마우스 휠 이벤트를 사용하면서 휠을 드르륵 3번하면 당연히 이벤트도 3번 호출될 것이라고 생각했었습니다. 하지만 콘솔 로그를 통해 확인해본 결과 드르륵 3번에도 수십, 수백번이 짧은 순간에 호출되어 예상했던 결과와 다른 문제가 발생하는 것을 확인할 수 있었습니다.
-스크롤 발생 시 쓰로틀링을 걸어 실행에 제한을 두는 방식으로 문제를 해결했습니다.
-<br>
-
-## 4. 최종결론
+## 5. 최종결론
 프로젝트 완성도에 만족하느냐? 라고 한다면 만족할 수 없다고 대답할 것입니다. 
 원래 목표였던 PC에서는 문제없이 원하는 100%를 달성했다고 생각하지만, 생각보다 모바일에 대해서는 부족함을 많이 느꼈습니다.
 
