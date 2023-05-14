@@ -6,7 +6,7 @@
 - 암호화폐의 현재시세와 차트를 통한 시세변동 확인 
 - 유튜브나 인터넷강의 없이 본인이 직접 제작
 - 사이트와 어울리면서도 최대한 많은 기능들을 적용해 볼 것을 목표로 진행
-- 오픈 Api - 코인파프리카(https://api.coinpaprika.com/)를 사용하여 제공받은 데이터를 사용
+- 오픈 Api - 코인파프리카(https://api.coinpaprika.com/) 를 사용하여 제공받은 데이터를 사용
 <br>
 
 ### 1-2. 구성원
@@ -36,7 +36,7 @@
 ## 2. 주요 기능
 
 ### 2-1. API 호출<br>
-async와 await, axios를 사용하여 오픈 API를 호출합니다. useEffect를 사용하여 마운트될때 API를 호출하며 코인파프리카(https://api.coinpaprika.com/)에서 제공받은 데이터를 화면에 출력합니다. 받아오는 데이터의 양이 너무 많아 slice를 통해 TOP 100개로 제한했습니다.
+async와 await, axios를 사용하여 오픈 API를 호출합니다. useEffect를 사용하여 마운트될때 API를 호출하며 코인파프리카(https://api.coinpaprika.com/) 에서 제공받은 데이터를 화면에 출력합니다. 받아오는 데이터의 양이 너무 많아 slice를 통해 TOP 100개로 제한했습니다.
 
 ```
   const fetchCoins = async () => {
